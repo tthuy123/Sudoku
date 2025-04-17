@@ -1,135 +1,121 @@
 #include "Button.h"
 
 Button::Button()
-         :   mCurrentState(ButtonState::BUTTON_MOUSE_OUT),
-            mTexture(nullptr),
-            mButtonRect({0,0,0,0}),
-            mTextureRect({0,0,0,0}),
-            mSelected(false),
-            mMouseOutColour({219,184,215, SDL_ALPHA_OPAQUE}), // light purple
-            mMouseOverMotionColour({95, 89, 191, SDL_ALPHA_OPAQUE}), // blue
-            mMouseDownColour({95, 89, 191, SDL_ALPHA_OPAQUE}), // green
-            mMouseUpColour({95, 89, 191, SDL_ALPHA_OPAQUE}) // blue
-{
-
-}
+    : currentState(ButtonState::MouseOut),
+      texture(nullptr),
+      buttonRect{0, 0, 0, 0},
+      textureRect{0, 0, 0, 0},
+      selected(false),
+      mouseOutColor{255, 179, 198, SDL_ALPHA_OPAQUE},
+      mouseOverMotionColor{164, 19, 60, SDL_ALPHA_OPAQUE},
+      mouseDownColor{95, 89, 191, SDL_ALPHA_OPAQUE},
+      mouseUpColor{89, 13, 34, SDL_ALPHA_OPAQUE}
+{}
 
 void Button::setTexture(SDL_Texture* texture) {
-    mTexture = texture;
+    this->texture = texture;
 }
 
 void Button::setButtonRect(const SDL_Rect& rect) {
-    mButtonRect = rect;
+    this->buttonRect = rect;
 }
 
 void Button::setTextureRect(const SDL_Rect& rect) {
-    mTextureRect = rect;
+    this->textureRect = rect;
 }
 
-void Button::centerTextureRect(){
-    int textureWidth;
-    int textureHeight;
-    SDL_QueryTexture(mTexture, NULL, NULL, &textureWidth, &textureHeight);
+void Button::centerTextureRect() {
+    int textureWidth, textureHeight;
+    SDL_QueryTexture(texture, nullptr, nullptr, &textureWidth, &textureHeight);
 
-    const int textureStartRow = mButtonRect.y + 0.5 * (mButtonRect.h - textureHeight);
-    const int textureStartCol = mButtonRect.x + 0.5 * (mButtonRect.w - textureWidth);
+    int x = buttonRect.x + (buttonRect.w - textureWidth) / 2;
+    int y = buttonRect.y + (buttonRect.h - textureHeight) / 2;
 
-    mTextureRect = {textureStartCol, textureStartRow, textureWidth, textureHeight};
+    textureRect = {x, y, textureWidth, textureHeight};
 }
 
-void Button::setSelected(const bool selected) {
-    mSelected = selected;
+void Button::setSelected(bool selected) {
+    this->selected = selected;
 }
 
-bool Button::isMouseInside(const int x, const int y) {
-    // Check if mouse is in button
-    bool inside = true;
-
-    // Mouse is left of the button
-    if (x < mButtonRect.x)
-    {
-        inside = false;
-    }
-    // Mouse is right of the button
-    else if (x > mButtonRect.x + mButtonRect.w) {
-        inside = false;
-    }
-    // Mouse above the button
-    else if (y < mButtonRect.y) {
-        inside = false;
-    }
-    // Mouse below the button
-    else if (y > mButtonRect.y + mButtonRect.h) {
-        inside = false;
-    }
-
-    return inside;
+bool Button::isMouseInside(int x, int y) const {
+    return (
+        x >= buttonRect.x &&
+        x <= buttonRect.x + buttonRect.w &&
+        y >= buttonRect.y &&
+        y <= buttonRect.y + buttonRect.h
+    );
 }
 
 ButtonState Button::getMouseEvent(const SDL_Event* event) {
-    //If mouse event happened 
     if (event->type == SDL_MOUSEMOTION || event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
-
-        // Get mouse position
         int x, y;
         SDL_GetMouseState(&x, &y);
 
-        // Mouse is outside button
         if (!isMouseInside(x, y)) {
-            mCurrentState = ButtonState::BUTTON_MOUSE_OUT;
-        }
-        // Mouse is inside button
-        else {
-            // Set mouse over State
+            currentState = ButtonState::MouseOut;
+        } else {
             switch (event->type) {
                 case SDL_MOUSEMOTION:
-                        mCurrentState = ButtonState::BUTTON_MOUSE_OVER_MOTION;
-                        break;
-                
+                    currentState = ButtonState::MouseOverMotion;
+                    break;
                 case SDL_MOUSEBUTTONDOWN:
-                        mCurrentState = ButtonState::BUTTON_MOUSE_DOWN;
-                        break;
+                    currentState = ButtonState::MouseDown;
+                    break;
                 case SDL_MOUSEBUTTONUP:
-                        mCurrentState = ButtonState::BUTTON_MOUSE_UP;
-                        break;
+                    currentState = ButtonState::MouseUp;
+                    break;
             }
         }
     }
-    return mCurrentState;
+    return currentState;
 }
 
 void Button::setMouseDownColour(const SDL_Color& colour) {
-    mMouseDownColour = colour;
+    mouseDownColor = colour;
+}
+void Button::setMouseUpColour(const SDL_Color& colour) {
+    mouseUpColor = colour;
+}
+void Button::setMouseOutColour(const SDL_Color& colour) {
+    mouseOutColor = colour;
+}
+void Button::setMouseOverMotionColour(const SDL_Color& colour) {
+    mouseOverMotionColor = colour;
+}
+SDL_Color Button::getMouseDownColor() const {
+    return mouseDownColor;
+}
+SDL_Color Button::getMouseUpColor() const {
+    return mouseUpColor;
+}
+SDL_Color Button::getMouseOutColor() const {
+    return mouseOutColor;
+}
+SDL_Color Button::getMouseOverMotionColor() const {
+    return mouseOverMotionColor;
 }
 
 void Button::renderButton(SDL_Renderer* renderer) {
-    // If current button is selected
-    if (mSelected) {
-        SDL_SetRenderDrawColor(renderer, mMouseDownColour.r, mMouseDownColour.g, mMouseDownColour.b, mMouseDownColour.a);
+    if (selected) {
+        SDL_SetRenderDrawColor(renderer, mouseDownColor.r, mouseDownColor.g, mouseDownColor.b, mouseDownColor.a);
     } else {
-// Show current button State
-    switch (mCurrentState)
-    {
-    case ButtonState::BUTTON_MOUSE_OUT:
-        SDL_SetRenderDrawColor(renderer, mMouseOutColour.r, mMouseOutColour.g, mMouseOutColour.b, mMouseOutColour.a);
-        break;
-    case ButtonState::BUTTON_MOUSE_OVER_MOTION:
-        SDL_SetRenderDrawColor(renderer, mMouseOverMotionColour.r, mMouseOverMotionColour.g, mMouseOverMotionColour.b, mMouseOverMotionColour.a);
-        break;
-    case ButtonState::BUTTON_MOUSE_DOWN:
-        SDL_SetRenderDrawColor(renderer, mMouseDownColour.r, mMouseDownColour.g, mMouseDownColour.b, mMouseDownColour.a);
-        break;
-    case ButtonState::BUTTON_MOUSE_UP:
-        SDL_SetRenderDrawColor(renderer, mMouseUpColour.r, mMouseUpColour.g, mMouseUpColour.b, mMouseUpColour.a);
-        break;
+        switch (currentState) {
+            case ButtonState::MouseOut:
+                SDL_SetRenderDrawColor(renderer, mouseOutColor.r, mouseOutColor.g, mouseOutColor.b, mouseOutColor.a);
+                break;
+            case ButtonState::MouseOverMotion:
+                SDL_SetRenderDrawColor(renderer, mouseOverMotionColor.r, mouseOverMotionColor.g, mouseOverMotionColor.b, mouseOverMotionColor.a);
+                break;
+            case ButtonState::MouseUp:
+                SDL_SetRenderDrawColor(renderer, mouseUpColor.r, mouseUpColor.g, mouseUpColor.b, mouseUpColor.a);
+                break;
+        }
+    }
 
-    } 
-
-   }
-
-   SDL_RenderFillRect(renderer, &mButtonRect);
+    SDL_RenderFillRect(renderer, &buttonRect);
 }
 
 void Button::renderTexture(SDL_Renderer* renderer) {
-    SDL_RenderCopy(renderer, mTexture, NULL, &mTextureRect);
+    SDL_RenderCopy(renderer, texture, nullptr, &textureRect);
 }
