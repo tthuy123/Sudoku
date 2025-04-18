@@ -1,252 +1,207 @@
 #include "SudokuGenerator.h"
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
 
-Sudoku::Generator::Generator()
-	: mGrid(nullptr), mGridSolution(nullptr)
-{
+Sudoku::Generator::Generator() : grid(nullptr), gridSolution(nullptr) {}
 
+// Gán giá trị vào ô tại (row, col)
+inline void Sudoku::Generator::setElement(const int row, const int col, const int num) {
+    grid[row * SIZE + col] = num;
 }
 
-//--------------------------------------Private methods----------------------------------------//
-inline void Sudoku::Generator::setElement(const int row, const int col, const int num)
-{
-	mGrid[row * 9 + col] = num;
+// Lấy giá trị tại ô (row, col)
+inline int Sudoku::Generator::getElement(const int row, const int col) const {
+    return grid[row * SIZE + col];
 }
 
-inline int Sudoku::Generator::getElement(const int row, const int col) const
-{
-	return mGrid[row * 9 + col];
+// Đổi giá trị giữa hai ô theo chỉ số 1D
+void Sudoku::Generator::swapNumbers(const int index1, const int index2) {
+    if (index1 == index2) return;
+    std::swap(grid[index1], grid[index2]);
 }
 
-void Sudoku::Generator::swapNumbers(const int index1, const int index2)
-{
-	// Only works if they're not from the same index
-	mGrid[index1] = mGrid[index1] ^ mGrid[index2];
-	mGrid[index2] = mGrid[index1] ^ mGrid[index2];
-	mGrid[index1] = mGrid[index1] ^ mGrid[index2];
+// Đổi 2 hàng
+void Sudoku::Generator::swapRows(const int row1, const int row2) {
+    for (int col = 0; col < SIZE; ++col) {
+        swapNumbers(row1 * SIZE + col, row2 * SIZE + col);
+    }
 }
 
-void Sudoku::Generator::swapRows(const int row1, const int row2)
-{
-	for (int col = 0; col < 9; col++)
-	{
-		swapNumbers(row1 * 9 + col, row2 * 9 + col);
-	}
+// Đổi 2 cột
+void Sudoku::Generator::swapCols(const int col1, const int col2) {
+    for (int row = 0; row < SIZE; ++row) {
+        swapNumbers(row * SIZE + col1, row * SIZE + col2);
+    }
 }
 
-void Sudoku::Generator::swapCols(const int col1, const int col2)
-{
-	for (int row = 0; row < 9; row++)
-	{
-		swapNumbers(row * 9 + col1, row * 9 + col2);
-	}
+// Đổi 2 khối hàng (3 hàng)
+void Sudoku::Generator::swapRowBlocks(const int rowBlock1, const int rowBlock2) {
+    for (int i = 0; i < 3; ++i) {
+        swapRows(rowBlock1 * 3 + i, rowBlock2 * 3 + i);
+    }
 }
 
-void Sudoku::Generator::swapRowBlocks(const int rowBlock1, const int rowBlock2)
-{
-	int startRow1 = rowBlock1 * 3;
-	int startRow2 = rowBlock2 * 3;
-
-	for (int i = 0; i < 3; i++)
-	{
-		swapRows(startRow1 + i, startRow2 + i);
-	}
+// Đổi 2 khối cột (3 cột)
+void Sudoku::Generator::swapColBlocks(const int colBlock1, const int colBlock2) {
+    for (int i = 0; i < 3; ++i) {
+        swapCols(colBlock1 * 3 + i, colBlock2 * 3 + i);
+    }
 }
 
-void Sudoku::Generator::swapColBlocks(const int colBlock1, const int colBlock2)
-{
-	int startCol1 = colBlock1 * 3;
-	int startCol2 = colBlock2 * 3;
-
-	for (int i = 0; i < 3; i++)
-	{
-		swapCols(startCol1 + i, startCol2 + i);
-	}
+// Dịch chuyển giá trị của hàng trước xuống hàng sau
+void Sudoku::Generator::fillNextRow(const int previousRow, const int nextRow, const int shifts) {
+    for (int col = 0; col < SIZE; ++col) {
+        int shiftedCol = (col + shifts) % SIZE;
+        setElement(nextRow, col, getElement(previousRow, shiftedCol));
+    }
 }
 
-void Sudoku::Generator::fillNextRow(const int previousRow, const int nextRow, const int shifts)
-{
-	for (int col = 0; col < (9 - shifts); col++)
-	{
-		setElement(nextRow, col, getElement(previousRow, col + shifts));
-	}
-
-	for (int col = (9 - shifts); col < 9; col++)
-	{
-		setElement(nextRow, col, getElement(previousRow, col - 9 + shifts));
-	}
+// Sao chép lưới Sudoku vào một mảng khác
+void Sudoku::Generator::copyGrid(int* targetGrid) const {
+    for (int i = 0; i < SIZE * SIZE; ++i) {
+        targetGrid[i] = grid[i];
+    }
 }
 
-void Sudoku::Generator::copyGrid(int* grid) const
-{
-	for (int i = 0; i < 81; i++)
-	{
-		grid[i] = mGrid[i];
-	}
+// Tạo một Sudoku hoàn chỉnh (đã giải xong)
+void Sudoku::Generator::createCompletedSudoku() {
+    srand(static_cast<unsigned int>(time(nullptr)));
+
+    // 1. Tạo hàng đầu tiên: [1..9]
+    for (int i = 0; i < SIZE; ++i) {
+        grid[i] = i + 1;
+    }
+
+    // 2. Xáo trộn hàng đầu tiên
+    for (int i = 0; i < 50; ++i) {
+        int i1 = rand() % 9;
+        int i2 = rand() % 9;
+        if (i1 != i2) swapNumbers(i1, i2);
+    }
+
+    // 3. Dịch hàng theo mẫu Latin square
+    fillNextRow(0, 1, 3);
+    fillNextRow(1, 2, 3);
+    fillNextRow(2, 3, 1);
+    fillNextRow(3, 4, 3);
+    fillNextRow(4, 5, 3);
+    fillNextRow(5, 6, 1);
+    fillNextRow(6, 7, 3);
+    fillNextRow(7, 8, 3);
+
+    // 4. Xáo trộn hàng trong từng khối hàng
+    for (int block = 0; block < 3; ++block) {
+        for (int i = 0; i < 10; ++i) {
+            int r1 = block * 3 + rand() % 3;
+            int r2 = block * 3 + rand() % 3;
+            if (r1 != r2) swapRows(r1, r2);
+        }
+    }
+
+    // 5. Xáo trộn cột trong từng khối cột
+    for (int block = 0; block < 3; ++block) {
+        for (int i = 0; i < 10; ++i) {
+            int c1 = block * 3 + rand() % 3;
+            int c2 = block * 3 + rand() % 3;
+            if (c1 != c2) swapCols(c1, c2);
+        }
+    }
+
+    // 6. Xáo trộn các khối hàng
+    for (int i = 0; i < 10; ++i) {
+        int b1 = rand() % 3;
+        int b2 = rand() % 3;
+        if (b1 != b2) swapRowBlocks(b1, b2);
+    }
+
+    // 7. Xáo trộn các khối cột
+    for (int i = 0; i < 10; ++i) {
+        int b1 = rand() % 3;
+        int b2 = rand() % 3;
+        if (b1 != b2) swapColBlocks(b1, b2);
+    }
+
+    // 8. Lưu lời giải vào gridSolution
+    for (int i = 0; i < SIZE * SIZE; ++i) {
+        gridSolution[i] = grid[i];
+    }
 }
 
-void Sudoku::Generator::createCompletedSudoku()
-{
-	// Set random seed using time
-	srand((unsigned int)time(NULL));
-
-	// 1. Fill first row with numbers 1 to 9
-	for (int i = 0; i < 9; i++)
-	{
-		mGrid[i] = i + 1;
-	}
-
-	// 2. Shuffle first row of 9 numbers
-	int swaps = 50;
-	for (int i = 0; i < swaps; i++)
-	{
-		int randIndex1 = rand() % 9;
-		int randIndex2 = rand() % 9;
-		if (randIndex1 != randIndex2)
-		{
-			swapNumbers(randIndex1, randIndex2);
-		}
-	}
-
-	// 3. Fill second and third row by previous row but shifted by 3
-	fillNextRow(0, 1, 3);
-	fillNextRow(1, 2, 3);
-
-	// 4. Fill fourth row by previous row but shifted by 1
-	fillNextRow(2, 3, 1);
-
-	// 5. Fill fith and sixth row by previous row but shifted by 3
-	fillNextRow(3, 4, 3);
-	fillNextRow(4, 5, 3);
-
-	// 6. Fill seventh row by previous row but shifted by 1
-	fillNextRow(5, 6, 1);
-
-	// 7. Fill eith and ninth row by previous row but shifted by 3
-	fillNextRow(6, 7, 3);
-	fillNextRow(7, 8, 3);
-
-	// 8. Shuffle rows within every row block
-	int shuffles = 10;
-	for (int rowBlock = 0; rowBlock < 3; rowBlock++)
-	{
-		for (int shuffle = 0; shuffle < shuffles; shuffle++)
-		{
-			int randRow1 = rowBlock * 3 + (rand() % 3);
-			int randRow2 = rowBlock * 3 + (rand() % 3);
-			if (randRow1 != randRow2)
-			{
-				swapRows(randRow1, randRow2);
-			}
-		}
-	}
-
-	// 9. Shuffle cols within every col block
-	for (int colBlock = 0; colBlock < 3; colBlock++)
-	{
-		for (int shuffle = 0; shuffle < shuffles; shuffle++)
-		{
-			int randCol1 = colBlock * 3 + (rand() % 3);
-			int randCol2 = colBlock * 3 + (rand() % 3);
-			if (randCol1 != randCol2)
-			{
-				swapCols(randCol1, randCol2);
-			}
-		}
-	}
-
-	// 10. Shuffle row blocks
-	for (int shuffle = 0; shuffle < shuffles; shuffle++)
-	{
-		int randRowBlock1 = rand() % 3;
-		int randRowBlock2 = rand() % 3;
-		if (randRowBlock1 != randRowBlock2)
-		{
-			swapRowBlocks(randRowBlock1, randRowBlock2);
-		}
-	}
-
-	// 11. Shuffle col blocks
-	for (int shuffle = 0; shuffle < shuffles; shuffle++)
-	{
-		int randColBlock1 = rand() % 3;
-		int randColBlock2 = rand() % 3;
-		if (randColBlock1 != randColBlock2)
-		{
-			swapColBlocks(randColBlock1, randColBlock2);
-		}
-	}
-
-	// 12. Store solution in solution grid
-	copyGrid(mGridSolution);
-
-}
 
 //--------------------------------------Public methods----------------------------------------//
-void Sudoku::Generator::generate(int* grid, int* solutionGrid)
-{
-	// Set the Sudoku grid and solution grid
-	mGrid = grid;
-	mGridSolution = solutionGrid;
 
-	// Create completed Sudoku
-	createCompletedSudoku();
+// Sinh Sudoku hoàn chỉnh và xóa ngẫu nhiên các ô
+void Sudoku::Generator::generate(int* grid, int* solutionGrid) {
+    this->grid = grid;
+    this->gridSolution = solutionGrid;
 
-	// Set random seed using time
-	srand((unsigned int)time(NULL));
+    // Tạo Sudoku đã giải
+    createCompletedSudoku();
 
-	// Create Sudoku solver object
-	Solver SS;
+    srand(static_cast<unsigned int>(time(nullptr)));
 
-	// Set the Sudoku solver to have the generator modifier
-	SS.setGenModifier(true);
+    Solver solver;
+    solver.setGenModifier(true); // Bật chế độ cho generator
 
-	// Create grid of bool types to track if elements have been removed from the main grid
-	bool removed[81] = { };
+    bool removed[81] = {};
+    int tempGrid[81];
+    int toRemove = 2;
 
-	// Create a temporary duplicate grid
-	int duplicateGrid[81];
+    while (toRemove > 0) {
+        int row = rand() % 9;
+        int col = rand() % 9;
+        int index = row * 9 + col;
 
-	// Current number to be determined to be removed
-	int removingNumber = 0;
+        if (!removed[index]) {
+            int originalValue = getElement(row, col);
 
-	// Elements to remove
-	int toRemove = 50;
+            // Copy lưới hiện tại vào tempGrid và xóa 1 ô
+            for (int i = 0; i < 81; ++i) {
+                tempGrid[i] = grid[i];
+            }
+            tempGrid[index] = 0;
 
-	while (toRemove)
-	{
-		// 1. Pick a random number you haven't tried removing before
-		int randRow = rand() % 9;
-		int randCol = rand() % 9;
-		if (!removed[randRow * 9 + randCol])
-		{
-			// 2. Remove the number, then run solver without the number to be determined to be removed
-			removingNumber = getElement(randRow, randCol);
-			copyGrid(duplicateGrid);
-			duplicateGrid[randRow * 9 + randCol] = 0;
-			Ignore numToIgnore = { removingNumber, randRow, randCol };
-			SS.setGrid(duplicateGrid, numToIgnore);
+            // Gửi ô bị xóa và giá trị bị bỏ qua vào solver
+            Ignore ignored = { originalValue, row, col };
+            solver.setGrid(tempGrid, ignored);
 
-			// 3. If the solver does not find a solution, then remove number
-			if (!SS.solve())
-			{
-				setElement(randRow, randCol, 0);
-				removed[randRow * 9 + randCol] = true;
-				toRemove--;
-			}
-		}
-		// 4. Repeat, until enough numbers removed
-	}
-
+            // Nếu không giải được thì có thể xóa ô này
+            if (!solver.solve()) {
+                setElement(row, col, 0);
+                removed[index] = true;
+                --toRemove;
+            }
+        }
+    }
 }
 
-void Sudoku::Generator::display() const
-{
-	for (int row = 0; row < 9; row++)
-	{
-		for (int col = 0; col < 9; col++)
-		{
-			std::cout << getElement(row, col) << ", ";
+// Hiển thị Sudoku ra console
+void Sudoku::Generator::display() const {
+    for (int row = 0; row < 9; ++row) {
+        for (int col = 0; col < 9; ++col) {
+            std::cout << getElement(row, col) << ", ";
+        }
+        std::cout << std::endl;
+    }
+}
+void Sudoku::Generator::displaySolution() const {
+	for (int row = 0; row < 9; ++row) {
+		for (int col = 0; col < 9; ++col) {
+			std::cout << gridSolution[row * SIZE + col] << ", ";
 		}
 		std::cout << std::endl;
 	}
 }
+
+// int main() {
+//     Sudoku::Generator generator;
+//     int puzzle[81];
+//     int solution[81];
+//     generator.generate(puzzle, solution);
+//     std::cout << "Generated Sudoku Puzzle:\n";
+//     generator.display();
+// 	std::cout << "\nSolution:\n";
+// 	generator.displaySolution();
+//     return 0;
+// }
