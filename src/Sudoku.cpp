@@ -220,11 +220,14 @@ void Sudoku::Sudoku::handleEvents(SDL_Event& event, bool& quit) {
 			
 			if (event.type == SDL_MOUSEBUTTONUP &&
 				event.button.button == SDL_BUTTON_LEFT &&
-				!clickedNumberButton && !clickedCell) {
+				!clickedNumberButton && !clickedCell && !hintRequested) {
 			
 				selectedNumber = 0;
+				selectedCell = -1;
 				for (int j = 0; j < 9; ++j)
 					numberButtons[j].setSelected(false);
+				for (int i = 0; i < TOTAL_CELL; i++)
+					grid[i].setSelected(false);
 			}
     
 }
