@@ -1,5 +1,3 @@
-/* Play Sudoku */
-#include "Sudoku.h"
 #include "Menu.h"
 
 int main(int argc, char* argv[])
