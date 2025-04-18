@@ -1,44 +1,32 @@
 #pragma once
+
 #include <SDL2/SDL.h>
-#include <iostream>
-#include <stdlib.h>
 #include <SDL2/SDL_ttf.h>
+#include <iostream>
+#include <cstdlib>
 
 #include "Button.h"
 
-namespace Sudoku
-{
-    class Cell : public Button // class Cell inherit from class Button
-    {
-        private: 
-                // Define editiability of the cell
-                bool mEditable;
+namespace Sudoku {
 
-                // Define number currently in the cell
-                char mCharNumber;
+class Cell : public Button {
+private:
+    bool editable;
+    char numberChar;
+    char solutionChar;
 
-                // Define the actual solution of the cell
-                char mCharSolution;
+public:
+    Cell();
+    void setNumber(const int number);
+    char getNumber() const;
+    void setSolution(int solution);
+    char getSolution() const;
+    void setEditable(bool editable);
+    bool isEditable() const;
 
-        public:
-                // Constructor
-                Cell();
+ //   void handleKeyboardEvent(const SDL_Event* event, SDL_Texture* textureCache[]);
 
-                // Set and get the number of the cell
-                void setNumber(const int number);
-                char getNumber() const;
-
-                // Set solution
-                void setSolution(const int solution);
-
-                // Set and get the editiability of the cell
-                void setEditable(const bool editable);
-                bool isEditable() const;
-
-                // Handle events
-                void handleKeyboardEvent(const SDL_Event* event, SDL_Texture* textureCache[]);
-
-                // Compare number with solution
-                bool isCorrect() const;
-    };
+    bool isCorrect() const;
 };
+
+} 
