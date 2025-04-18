@@ -23,7 +23,9 @@ void Button::setButtonRect(const SDL_Rect& rect) {
 void Button::setTextureRect(const SDL_Rect& rect) {
     this->textureRect = rect;
 }
-
+void Button::setText(std::string text) {
+    this->text = text;
+}
 void Button::centerTextureRect() {
     int textureWidth, textureHeight;
     SDL_QueryTexture(texture, nullptr, nullptr, &textureWidth, &textureHeight);

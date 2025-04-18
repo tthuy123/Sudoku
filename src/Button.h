@@ -19,6 +19,7 @@ private:
     SDL_Rect textureRect;
 
     bool selected;
+    std::string text; // lưu trữ chữ của button (nếu có)
 
 protected:
     SDL_Color mouseOutColor;
@@ -30,9 +31,14 @@ public:
     Button();
 
     void setTexture(SDL_Texture* texture);
+    SDL_Texture* getTexture() const { return texture; }
+
     void setButtonRect(const SDL_Rect& rect);
     void setTextureRect(const SDL_Rect& rect);
     SDL_Rect getButtonRect() const { return buttonRect; }
+
+    void setText(std::string text);
+    std::string getText() const { return text; }
 
     void centerTextureRect();
     void setSelected(bool selected);
