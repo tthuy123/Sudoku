@@ -1,8 +1,7 @@
 # Sudoku
 A complete Sudoku game built using **SDL2** in **C++** featuring difficulty selection, hints, solution checking, and puzzle generation.
 
-![screenshot](https://user-images.githubusercontent.com/your_screenshot.png)
-
+![image](https://github.com/user-attachments/assets/b11d8f1b-0ff7-4773-a6ad-67b7b70b13b9)
 ## Built With
 
 - C++
@@ -22,4 +21,9 @@ Make sure you have the following installed:
 - A C++ compiler (e.g. g++ or clang++)
 
 ## Build & Run
-<pre lang="bash"> ```bash git clone https://github.com/tthuy123/Sudoku.git cd Sudoku make ./Sudoku ``` </pre>
+<pre lang="bash"> 
+git clone https://github.com/tthuy123/Sudoku.git
+cd Sudoku
+mingw32-make
+./Sudoku
+  
