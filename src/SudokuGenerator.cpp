@@ -5,66 +5,48 @@
 
 Sudoku::Generator::Generator() : grid(nullptr), gridSolution(nullptr) {}
 
-// Gán giá trị vào ô tại (row, col)
 inline void Sudoku::Generator::setElement(const int row, const int col, const int num) {
     grid[row * SIZE + col] = num;
 }
-
-// Lấy giá trị tại ô (row, col)
 inline int Sudoku::Generator::getElement(const int row, const int col) const {
     return grid[row * SIZE + col];
 }
 
-// Đổi giá trị giữa hai ô theo chỉ số 1D
 void Sudoku::Generator::swapNumbers(const int index1, const int index2) {
     if (index1 == index2) return;
     std::swap(grid[index1], grid[index2]);
 }
-
-// Đổi 2 hàng
 void Sudoku::Generator::swapRows(const int row1, const int row2) {
     for (int col = 0; col < SIZE; ++col) {
         swapNumbers(row1 * SIZE + col, row2 * SIZE + col);
     }
 }
-
-// Đổi 2 cột
 void Sudoku::Generator::swapCols(const int col1, const int col2) {
     for (int row = 0; row < SIZE; ++row) {
         swapNumbers(row * SIZE + col1, row * SIZE + col2);
     }
 }
-
-// Đổi 2 khối hàng (3 hàng)
 void Sudoku::Generator::swapRowBlocks(const int rowBlock1, const int rowBlock2) {
     for (int i = 0; i < 3; ++i) {
         swapRows(rowBlock1 * 3 + i, rowBlock2 * 3 + i);
     }
 }
-
-// Đổi 2 khối cột (3 cột)
 void Sudoku::Generator::swapColBlocks(const int colBlock1, const int colBlock2) {
     for (int i = 0; i < 3; ++i) {
         swapCols(colBlock1 * 3 + i, colBlock2 * 3 + i);
     }
 }
-
-// Dịch chuyển giá trị của hàng trước xuống hàng sau
 void Sudoku::Generator::fillNextRow(const int previousRow, const int nextRow, const int shifts) {
     for (int col = 0; col < SIZE; ++col) {
         int shiftedCol = (col + shifts) % SIZE;
         setElement(nextRow, col, getElement(previousRow, shiftedCol));
     }
 }
-
-// Sao chép lưới Sudoku vào một mảng khác
 void Sudoku::Generator::copyGrid(int* targetGrid) const {
     for (int i = 0; i < SIZE * SIZE; ++i) {
         targetGrid[i] = grid[i];
     }
 }
-
-// Tạo một Sudoku hoàn chỉnh (đã giải xong)
 void Sudoku::Generator::createCompletedSudoku() {
     srand(static_cast<unsigned int>(time(nullptr)));
 
@@ -128,15 +110,9 @@ void Sudoku::Generator::createCompletedSudoku() {
     }
 }
 
-
-//--------------------------------------Public methods----------------------------------------//
-
-// Sinh Sudoku hoàn chỉnh và xóa ngẫu nhiên các ô
-void Sudoku::Generator::generate(int* grid, int* solutionGrid) {
+void Sudoku::Generator::generate(int* grid, int* solutionGrid, Difficulty difficulty) {
     this->grid = grid;
     this->gridSolution = solutionGrid;
-
-    // Tạo Sudoku đã giải
     createCompletedSudoku();
 
     srand(static_cast<unsigned int>(time(nullptr)));
@@ -146,7 +122,21 @@ void Sudoku::Generator::generate(int* grid, int* solutionGrid) {
 
     bool removed[81] = {};
     int tempGrid[81];
-    int toRemove = 2;
+    int toRemove;
+    switch (difficulty) {
+        case Difficulty::EASY:
+            toRemove = 30 + rand() % 10;
+            break;
+        case Difficulty::MEDIUM:
+            toRemove = 50 + rand() % 10;
+            break;
+        case Difficulty::HARD:
+            toRemove = 2; // for testing
+            break;
+        default:
+            toRemove = 30 + rand() % 10; // Mặc định là dễ
+            break;
+    }
 
     while (toRemove > 0) {
         int row = rand() % 9;
@@ -176,7 +166,6 @@ void Sudoku::Generator::generate(int* grid, int* solutionGrid) {
     }
 }
 
-// Hiển thị Sudoku ra console
 void Sudoku::Generator::display() const {
     for (int row = 0; row < 9; ++row) {
         for (int col = 0; col < 9; ++col) {
@@ -194,14 +183,3 @@ void Sudoku::Generator::displaySolution() const {
 	}
 }
 
-// int main() {
-//     Sudoku::Generator generator;
-//     int puzzle[81];
-//     int solution[81];
-//     generator.generate(puzzle, solution);
-//     std::cout << "Generated Sudoku Puzzle:\n";
-//     generator.display();
-// 	std::cout << "\nSolution:\n";
-// 	generator.displaySolution();
-//     return 0;
-// }

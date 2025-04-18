@@ -6,6 +6,12 @@
 
 namespace Sudoku
 {
+	enum class Difficulty {
+		EASY,
+		MEDIUM,
+		HARD
+	};
+
 	class Generator
 	{
 	private:
@@ -30,7 +36,7 @@ namespace Sudoku
 
 	public:
 		Generator();
-		void generate(int* grid, int* solutionGrid);
+		void generate(int* grid, int* solutionGrid, Difficulty difficulty);
 		void display() const;
 		void displaySolution() const;
 	};
