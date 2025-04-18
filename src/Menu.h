@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include <string>
 #include "Button.h"
 #include "SudokuGenerator.h"
@@ -9,6 +10,7 @@ class Menu {
 private:
     SDL_Window* window;
     SDL_Renderer* renderer;
+    SDL_Texture* backgroundTexture = nullptr;
     TTF_Font* font;
     Button buttons[3];
     Sudoku::Difficulty selectedDifficulty = Sudoku::Difficulty::EASY;

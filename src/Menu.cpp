@@ -2,8 +2,8 @@
 #include "Sudoku.h"
 #include <iostream>
 
-const int SCREEN_WIDTH = 300;
-const int SCREEN_HEIGHT = 400;
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 560;
 
 Menu::Menu() : window(nullptr), renderer(nullptr), font(nullptr) 
 {
@@ -30,9 +30,9 @@ bool Menu::init() {
     if (!font) return false;
 
     SDL_Rect positions[3] = {
-        {75, 100, 150, 50},
-        {75, 180, 150, 50},
-        {75, 260, 150, 50}
+        {140, 450, 100, 50},
+        {450, 450, 100, 50},
+        {750, 450, 100, 50}
     };
     const char* labels[3] = {"start", "level", "quit"};
 
@@ -44,7 +44,15 @@ bool Menu::init() {
         buttons[i].setTexture(texture);
         buttons[i].centerTextureRect();
         SDL_FreeSurface(surface);
-        buttons[i].setMouseOutColour({255, 182, 193, 255});
+        buttons[i].setMouseOutColour({255,246,247,255});
+    }
+
+        SDL_Surface* bgSurface = IMG_Load("assets/background.jpg");
+    if (!bgSurface) {
+        std::cerr << "Failed to load background image: " << IMG_GetError() << std::endl;
+    } else {
+        backgroundTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
+        SDL_FreeSurface(bgSurface);
     }
 
     return true;
@@ -69,10 +77,11 @@ std::string Menu::difficultyToString(Sudoku::Difficulty level) {
 }
 
 void Menu::showLevelMenu() {
+    int startX = SCREEN_WIDTH / 2 - 75;
     SDL_Rect levelRects[3] = {
-        {75, 100, 150, 50},
-        {75, 180, 150, 50},
-        {75, 260, 150, 50}
+        {startX, 100, 150, 50},
+        {startX, 180, 150, 50},
+        {startX, 260, 150, 50}
     };
     const char* levels[3] = {"EASY", "MEDIUM", "HARD"};
 
@@ -112,7 +121,7 @@ void Menu::showLevelMenu() {
 
         SDL_SetRenderDrawColor(renderer, 255, 228, 225, 255);
         SDL_RenderClear(renderer);
-        renderText("Choose Level", 80, 40, {255, 20, 147, 255});
+        renderText("Choose Level", startX, 40, {255, 20, 147, 255});
         for (int i = 0; i < 3; ++i) {
             levelButtons[i].renderButton(renderer);
             levelButtons[i].renderTexture(renderer);
@@ -160,9 +169,15 @@ void Menu::run() {
                 }
             }
 
-            SDL_SetRenderDrawColor(renderer, 211, 211, 211, 255);
-            SDL_RenderClear(renderer);
-            renderText("Menu", 120, 40, {255, 105, 180, 255});
+            // SDL_SetRenderDrawColor(renderer, 211, 211, 211, 255);
+            // SDL_RenderClear(renderer);
+            if (backgroundTexture) {
+                SDL_RenderCopy(renderer, backgroundTexture, nullptr, nullptr);
+            } else {
+                SDL_SetRenderDrawColor(renderer, 211, 211, 211, 255);
+                SDL_RenderClear(renderer);
+            }            
+          //  renderText("Menu", 120, 40, {255, 105, 180, 255});
             for (int i = 0; i < 3; ++i) {
                 buttons[i].renderButton(renderer);
                 buttons[i].renderTexture(renderer);
@@ -187,6 +202,10 @@ void Menu::close() {
     TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    if (backgroundTexture) {
+        SDL_DestroyTexture(backgroundTexture);
+        backgroundTexture = nullptr;
+    }    
     TTF_Quit();
     SDL_Quit();
 }
