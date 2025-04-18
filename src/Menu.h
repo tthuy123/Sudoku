@@ -3,6 +3,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <string>
 #include "Button.h"
+#include "SudokuGenerator.h"
 
 class Menu {
 private:
@@ -10,6 +11,7 @@ private:
     SDL_Renderer* renderer;
     TTF_Font* font;
     Button buttons[3];
+    Sudoku::Difficulty selectedDifficulty = Sudoku::Difficulty::EASY;
 
 public:
     Menu();
@@ -19,4 +21,6 @@ public:
     void run();
     void close();
     void renderText(const std::string& text, int x, int y, SDL_Color color);
+    void showLevelMenu();
+    std::string difficultyToString(Sudoku::Difficulty level);
 };

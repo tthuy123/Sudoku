@@ -59,6 +59,73 @@ void Menu::renderText(const std::string& text, int x, int y, SDL_Color color) {
     SDL_DestroyTexture(texture);
 }
 
+std::string Menu::difficultyToString(Sudoku::Difficulty level) {
+    switch (level) {
+        case Sudoku::Difficulty::EASY: return "EASY";
+        case Sudoku::Difficulty::MEDIUM: return "MEDIUM";
+        case Sudoku::Difficulty::HARD: return "HARD";
+        default: return "UNKNOWN";
+    }
+}
+
+void Menu::showLevelMenu() {
+    SDL_Rect levelRects[3] = {
+        {75, 100, 150, 50},
+        {75, 180, 150, 50},
+        {75, 260, 150, 50}
+    };
+    const char* levels[3] = {"EASY", "MEDIUM", "HARD"};
+
+    Button levelButtons[3];
+    for (int i = 0; i < 3; ++i) {
+        levelButtons[i].setButtonRect(levelRects[i]);
+        SDL_Surface* surface = TTF_RenderText_Solid(font, levels[i], {0, 0, 0, 255});
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        levelButtons[i].setText(levels[i]);
+        levelButtons[i].setTexture(texture);
+        levelButtons[i].centerTextureRect();
+        SDL_FreeSurface(surface);
+        levelButtons[i].setMouseOutColour({173, 216, 230, 255});
+    }
+
+    bool choosing = true;
+    while (choosing) {
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                SDL_Quit();
+                exit(0);
+            } else if (e.type == SDL_MOUSEBUTTONDOWN) {
+                int x = e.button.x;
+                int y = e.button.y;
+                for (int i = 0; i < 3; ++i) {
+                    if (levelButtons[i].isMouseInside(x, y)) {
+                        if (i == 0) selectedDifficulty = Sudoku::Difficulty::EASY;
+                        else if (i == 1) selectedDifficulty = Sudoku::Difficulty::MEDIUM;
+                        else if (i == 2) selectedDifficulty = Sudoku::Difficulty::HARD;
+                        choosing = false;
+                    }
+                }
+            }
+            std::cout << "Selected difficulty: " << difficultyToString(selectedDifficulty) << std::endl;
+        }
+
+        SDL_SetRenderDrawColor(renderer, 255, 228, 225, 255);
+        SDL_RenderClear(renderer);
+        renderText("Choose Level", 80, 40, {255, 20, 147, 255});
+        for (int i = 0; i < 3; ++i) {
+            levelButtons[i].renderButton(renderer);
+            levelButtons[i].renderTexture(renderer);
+            levelButtons[i].centerTextureRect();
+        }
+        SDL_RenderPresent(renderer);
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        SDL_DestroyTexture(levelButtons[i].getTexture());
+    }
+}
+
 
 void Menu::run() {
     bool running = true;
@@ -82,7 +149,7 @@ void Menu::run() {
                             if (label == "start") {
                                 startSudoku = true;
                             } else if (label == "level") {
-                                std::cout << "Opening level selection...\n";
+                                showLevelMenu();
                             } else if (label == "quit") {
                                 running = false;
                                 SDL_Quit();
@@ -93,13 +160,13 @@ void Menu::run() {
                 }
             }
 
-            // Vẽ giao diện menu
             SDL_SetRenderDrawColor(renderer, 211, 211, 211, 255);
             SDL_RenderClear(renderer);
             renderText("Menu", 120, 40, {255, 105, 180, 255});
             for (int i = 0; i < 3; ++i) {
                 buttons[i].renderButton(renderer);
                 buttons[i].renderTexture(renderer);
+                buttons[i].centerTextureRect();
             }
             SDL_RenderPresent(renderer);
 
@@ -108,6 +175,7 @@ void Menu::run() {
         if (startSudoku) {
             close();
             Sudoku::Sudoku sudokuGame;
+            sudokuGame.setDifficulty(selectedDifficulty);
             sudokuGame.play();
         }
     }
