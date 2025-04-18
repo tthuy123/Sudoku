@@ -17,7 +17,6 @@ namespace Sudoku
 	class Sudoku
 	{
 	private:
-		// Kích thước cửa sổ và lưới
 		const int windowHeight;
 		const int windowWidth;
 
@@ -33,25 +32,23 @@ namespace Sudoku
 		TTF_Font* font;
 		int fontSize;
 
-		// Cache texture để hiển thị text nhanh hơn
 		int totalTextures;
 		SDL_Texture* textureCache[TOTAL_TEXTURE_CACHE];
 
 		// Dữ liệu trò chơi
-		Cell grid[TOTAL_CELL];       // Lưới ô Sudoku
-		int solution[TOTAL_CELL];    // Lưu nghiệm của bàn Sudoku đã sinh
+		Cell grid[TOTAL_CELL];       
+		int solution[TOTAL_CELL]; 
 
-		// Giao diện người dùng
 		Button checkButton;
 		Button newButton;
 		Button solutionButton;
 		Button hintButton;
 
-		Button numberButtons[9];     // Các nút chọn số (1-9)
+		Button numberButtons[9];
 
 		// Trạng thái trò chơi
-		int selectedNumber;          // Số đang được chọn để điền
-		int selectedCell;            // Vị trí ô đang chọn (từ 0 đến 80)
+		int selectedNumber;         
+		int selectedCell;
 		bool newGameRequested;
 		bool checkSolutionRequested;
 		bool hintRequested;
@@ -65,28 +62,28 @@ namespace Sudoku
     	bool showMessage = false;
    	 	std::string messageText;
 
+		// level
+		Difficulty level = Difficulty::EASY;
+
 	private:
 		// Các hàm khởi tạo & logic nội bộ
 		bool initialiseSDL();
 		inline int getIndex(int row, int col) const;
 		void loadTexture(SDL_Texture*& texture, const char* text, SDL_Color& fontColour);
-		void preloadTextures(); // tải sẵn các số từ 1-9
-		void createInterfaceLayout(); // xác định vị trí các nút
-		void generateSudoku(); // sinh mới lưới Sudoku
-		void freeTextures(); // giải phóng bộ nhớ
-		void handleEvents(SDL_Event& event, bool& quit); // xử lý sự kiện chuột, bàn phím
-		void updateGameState(); // cập nhật trạng thái trò chơi
-		void renderUI(); // vẽ giao diện và lưới
+		void preloadTextures();
+		void createInterfaceLayout();
+		void generateSudoku(); 
+		void freeTextures(); 
+		void handleEvents(SDL_Event& event, bool& quit);
+		void updateGameState();
+		void renderUI();
 
 	public:
-		// Khởi tạo và hủy
 		Sudoku();
 		~Sudoku();
 
-		// Vòng lặp chính
+		void setDifficulty(Difficulty level);
 		void play();
-
-		// Đóng game và cleanup
 		void close();
 	};
 };

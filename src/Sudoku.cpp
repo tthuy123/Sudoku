@@ -10,7 +10,7 @@ Sudoku::Sudoku::Sudoku()
 	  selectedNumber(0), selectedCell(-1),
 	  newGameRequested(true), checkSolutionRequested(false),
 	  hintRequested(false), completed(false),
-	  clearColour({ 255, 255, 255, SDL_ALPHA_OPAQUE })
+	  clearColour({ 255, 228, 225, 255 })
 {
 }
 
@@ -87,7 +87,6 @@ void Sudoku::Sudoku::createInterfaceLayout() {
 	int gridStartY = padding * 3;
 	int cellSize = gridWidth / 9;
 
-	const SDL_Color BLACK = { 0, 0, 0, SDL_ALPHA_OPAQUE };
 	const int THIN_BORDER = 1;
 	const int THICK_BORDER = 5;
 
@@ -116,10 +115,10 @@ void Sudoku::Sudoku::createInterfaceLayout() {
 	for (int i = 0; i < 9; ++i) {
 		numberButtons[i].setTexture(textureCache[i + 1]);
 		SDL_Rect rect = {
-			rightPanelX + i * (cellSize * 0.9) - padding*4,
+			rightPanelX + i * (cellSize - 5) - padding*4,
 			bottomY,
-			cellSize*0.8,
-			cellSize*0.8
+			cellSize - 5,
+			cellSize - 5
 		};
 		numberButtons[i].setButtonRect(rect);
 	}
@@ -130,7 +129,7 @@ void Sudoku::Sudoku::generateSudoku() {
 	int solvedGrid[81] = {};
 
 	Generator generator;
-	generator.generate(generatedGrid, solvedGrid);
+	generator.generate(generatedGrid, solvedGrid, level);
 
 	for (int i = 0; i < TOTAL_CELL; i++) {
 		grid[i].setNumber(generatedGrid[i]);
@@ -280,7 +279,7 @@ void Sudoku::Sudoku::updateGameState() {
 }
 
 void Sudoku::Sudoku::renderUI() {
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(renderer, clearColour.r, clearColour.g, clearColour.b, clearColour.a);
 	SDL_RenderClear(renderer);
 
 	for (int i = 0; i < TOTAL_CELL; ++i) {
@@ -329,6 +328,9 @@ void Sudoku::Sudoku::renderUI() {
 	SDL_RenderPresent(renderer);
 }
 
+void Sudoku::Sudoku::setDifficulty(Difficulty level) {
+	this->level = level;
+}
 void Sudoku::Sudoku::play() {
 
 	if (!initialiseSDL())
