@@ -1,98 +1,92 @@
 #pragma once
-/*---------------------------------------------A Sudoku Sudoku-------------------------------------------------*/
-				// SDL Lazy Foo' Tutorials = https://lazyfoo.net/tutorials/SDL/index.php
-				// SDL Documentation = https://wiki.libsdl.org/FrontPage
-				// SDL True Type Fonts = https://www.libsdl.org/projects/SDL_ttf/
 
-#include <SDL2/SDL.h> 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>  // Đừng quên include TTF nếu bạn dùng text
 #include <iostream>
-#include <time.h>  
+#include <ctime>
 
 #include "Button.h"
 #include "SudokuCell.h"
 #include "SudokuGenerator.h"
+
+const int TOTAL_TEXTURE_CACHE = 14;
+const int TOTAL_CELL = 81;
 
 namespace Sudoku
 {
 	class Sudoku
 	{
 	private:
-		// Define window dimensions
-		const int mWindowHeight;
-		const int mWindowWidth;
+		// Kích thước cửa sổ và lưới
+		const int windowHeight;
+		const int windowWidth;
 
-		// Define Sudoku grid dimensions
-		const int mGridHeight;
-		const int mGridWidth;
+		const int gridHeight;
+		const int gridWidth;
 
-		// Define Sudoku max grid rows and columns (normally set to 9 x 9)
-		const int mGridRows;
-		const int mGridCols;
+		const int gridRows;
+		const int gridCols;
 
-		// Define window and renderer
-		SDL_Window* mWindow;
-		SDL_Renderer* mRenderer;
+		// SDL
+		SDL_Window* window;
+		SDL_Renderer* renderer;
+		TTF_Font* font;
+		int fontSize;
 
-		// Texture cache to hold preloaded textures
-		int mTotalTextures;
-		SDL_Texture* mTextureCache[14];
+		// Cache texture để hiển thị text nhanh hơn
+		int totalTextures;
+		SDL_Texture* textureCache[TOTAL_TEXTURE_CACHE];
 
-		// Define true type font paramaters
-		TTF_Font* mFont;
-		int mFontSize;
+		// Dữ liệu trò chơi
+		Cell grid[TOTAL_CELL];       // Lưới ô Sudoku
+		int solution[TOTAL_CELL];    // Lưu nghiệm của bàn Sudoku đã sinh
 
-		// Define total buttons
-		const int mTotalCells;
+		// Giao diện người dùng
+		Button checkButton;
+		Button newButton;
+		Button solutionButton;
+		Button hintButton;
 
-		// Define grid of cells (normally set to 9 x 9 = 81)
-		Cell mGrid[81];
+		Button numberButtons[9];     // Các nút chọn số (1-9)
 
-		// Define check and new buttons
-		Button mCheckButton;
-		Button mNewButton;
+		// Trạng thái trò chơi
+		int selectedNumber;          // Số đang được chọn để điền
+		int selectedCell;            // Vị trí ô đang chọn (từ 0 đến 80)
+		bool newGameRequested;
+		bool checkSolutionRequested;
+		bool hintRequested;
+		bool completed;
 
-		// Timer
-		Button mTimer;
+		// Màu nền
+		SDL_Color clearColour;
 
-		// Define colours 
-		SDL_Color mClearColour;
+		// Thông báo
+		time_t messageStartTime;
+    	bool showMessage = false;
+   	 	std::string messageText;
 
 	private:
-		// Intialise SDL window, renderer and true type font
+		// Các hàm khởi tạo & logic nội bộ
 		bool initialiseSDL();
-
-		// Get index of 1D array from row and col
 		inline int getIndex(int row, int col) const;
-
-		// Load textures using SDL true type fonts
 		void loadTexture(SDL_Texture*& texture, const char* text, SDL_Color& fontColour);
-
-		// Preload textures using SDL true type fonts
-		void preloadTextures();
-
-		// Create interface layout by setting button parameters
-		void createInterfaceLayout();
-		
-		// Generate a Sudoku puzzle with a unique solution
-		void generateSudoku();
-
-		// Free textures
-		void freeTextures();
+		void preloadTextures(); // tải sẵn các số từ 1-9
+		void createInterfaceLayout(); // xác định vị trí các nút
+		void generateSudoku(); // sinh mới lưới Sudoku
+		void freeTextures(); // giải phóng bộ nhớ
+		void handleEvents(SDL_Event& event, bool& quit); // xử lý sự kiện chuột, bàn phím
+		void updateGameState(); // cập nhật trạng thái trò chơi
+		void renderUI(); // vẽ giao diện và lưới
 
 	public:
-		// Constructor to intialise member variables
+		// Khởi tạo và hủy
 		Sudoku();
-
-		// Destructor to free textures
 		~Sudoku();
 
-	public:
-		// Play Sudoku
+		// Vòng lặp chính
 		void play();
 
-		// Close Sudoku
+		// Đóng game và cleanup
 		void close();
-
 	};
-
 };
