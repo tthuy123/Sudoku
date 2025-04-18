@@ -54,12 +54,8 @@ bool Sudoku::Solver::checkValid(const int inputRow, const int inputCol, const in
 			}
 		}
 	}
-
-	// number not found in row, col, nor block so return true;
 	return true;
 }
-
-//--------------------------------------Public methods----------------------------------------//
 void Sudoku::Solver::setGenModifier(const bool input)
 {
 	genModifier = input;
@@ -81,10 +77,8 @@ bool Sudoku::Solver::solve()
 			{
 				for (int num = 1; num < 10; num++)
 				{
-					// If generator modifier is set to true and the row, col and number match then skip to next iteration
 					if (!(genModifier && numToIgnore.row == row && numToIgnore.col == col && numToIgnore.num == num))
 					{
-						// if number is valid i.e. not found in row, col, or block then return true
 						if (checkValid(row, col, num))
 						{
 							setElement(row, col, num);
@@ -93,17 +87,14 @@ bool Sudoku::Solver::solve()
 							{
 								return true;
 							}
-							// set element to 0 since num did not work for further recursion call(s)
 							setElement(row, col, 0);
 						}
 					}
 				}
-				// back track to previous element
 				return false;
 			}
 		}
 	}
-	// Solution found
 	return true;
 }
 
@@ -117,5 +108,4 @@ void Sudoku::Solver::display() const
 		}
 		std::cout << std::endl;
 	}
-	std::cout << "----------------------------\n";
 }
