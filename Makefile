@@ -1,25 +1,27 @@
-#Hướng dẫn:
+# Hướng dẫn:
 # - `make` hoặc `make all`: Biên dịch và chạy
 # - `make compile`: Chỉ biên dịch
 # - `make run`: Chạy chương trình
 # - `make clean`: Xóa file object
 
-SHELL := pwsh.exe
+# Use bash shell instead of PowerShell
+SHELL := /bin/bash
 
-TARGET = Sudoku.exe
+TARGET = Sudoku
 
+# Path to SDL2
 SDL2_path = .
 
 CC = g++
 CFLAGS = -std=c++17 -Wall -pedantic -MMD -MP 
 
-#Định nghĩa thư mục
+# Định nghĩa thư mục
 OUTDIR = .
 SRC_DIR = ./src
 OBJ_DIR = ./obj
 LIB_DIR = ./dep/lib
 
-#Tìm tất cả file .cpp trong src/
+# Tìm tất cả file .cpp trong src/
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 SRC = $(call rwildcard, $(SRC_DIR), *.cpp)
 
@@ -30,7 +32,7 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(SRC:$(SRC_DIR)/%.cpp=%.o))
 INC_DIRS = -Idep/include -I$(SDL2_path)/dep/include
 
 # Định nghĩa thư viện
-LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -mwindows
+LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf
 LIB_DIRS = -Ldep/lib
 
 # Mục tiêu chính: Biên dịch & chạy
@@ -39,23 +41,23 @@ all: compile run
 
 # Chỉ biên dịch
 .PHONY: compile
-compile: $(TARGET) 
+compile: $(TARGET)
 
-#Biên dịch chương trình
+# Biên dịch chương trình
 $(TARGET): $(OBJS)
 	$(CC) -o $(OUTDIR)/$@ $(OBJS) $(LIB_DIRS) $(LIBS)
 
 # Biên dịch từng file .cpp thành .o
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp 
-	powershell mkdir -Force $(subst /,\,$(@D))
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(subst /,\,$(@D))  # Create directory if it doesn't exist
 	$(CC) -o $@ $(CFLAGS) -c $< $(INC_DIRS)
 
 # Xóa file biên dịch
 .PHONY: clean
 clean:
-	powershell rm -r -Force $(OBJ_DIR)\*
+	rm -rf $(OBJ_DIR)/*  # Remove object files
 
 # Chạy chương trình
 .PHONY: run
-run: 
+run:
 	$(OUTDIR)/$(TARGET)
