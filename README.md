@@ -2,6 +2,11 @@
 A complete Sudoku game built using **SDL2** in **C++** featuring difficulty selection, hints, solution checking, and puzzle generation.
 
 ![image](https://github.com/user-attachments/assets/b11d8f1b-0ff7-4773-a6ad-67b7b70b13b9)
+
+
+## Video demo
+https://drive.google.com/file/d/1pMZ9iUpPbxEb6vyzPSszbYr9R7NOk9bW/view?usp=sharing
+  
 ## Built With
 
 - C++
@@ -27,6 +32,3 @@ cd Sudoku
 mingw32-make
 ./Sudoku
 
-## Video demo
-https://drive.google.com/file/d/1pMZ9iUpPbxEb6vyzPSszbYr9R7NOk9bW/view?usp=sharing
-  
