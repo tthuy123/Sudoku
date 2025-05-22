@@ -4,6 +4,7 @@
 
 namespace Sudoku 
 {
+	// struct for cell that should be ignore when generate the Sudoku puzzle
 	struct Ignore
 	{
 		int num = 0;

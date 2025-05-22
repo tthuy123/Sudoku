@@ -116,7 +116,6 @@ void Menu::showLevelMenu() {
                     }
                 }
             }
-            std::cout << "Selected difficulty: " << difficultyToString(selectedDifficulty) << std::endl;
         }
 
         SDL_SetRenderDrawColor(renderer, 255, 228, 225, 255);
