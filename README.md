@@ -26,4 +26,7 @@ git clone https://github.com/tthuy123/Sudoku.git
 cd Sudoku
 mingw32-make
 ./Sudoku
+
+## Video demo
+https://drive.google.com/file/d/1pMZ9iUpPbxEb6vyzPSszbYr9R7NOk9bW/view?usp=sharing
   
